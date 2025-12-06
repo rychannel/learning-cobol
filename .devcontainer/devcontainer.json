@@ -1,0 +1,19 @@
+{
+  "name": "GnuCOBOL Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."   // or "." if Dockerfile is in the same folder
+  },
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "streetsidesoftware.code-spell-checker",
+        "bitlang.cobol"
+      ]
+    }
+  }
+}

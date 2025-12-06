@@ -1,0 +1,8 @@
+*
+!*/
+!*.* 
+!.gitignore
+*.so
+*.o
+*.out
+a.out
