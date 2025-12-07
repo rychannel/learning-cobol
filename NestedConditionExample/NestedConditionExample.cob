@@ -13,8 +13,11 @@
            if Num1 > 100
                 display 'Nested IF condition: Num 1 is greater than 100'
                 if Num1 > Num2
-                    display '-Nested relation: Num 1 is greater than 
-      -    'Num2'
+                    display '-Nested relation: Num 1 is greater than Num
+      -            '2'
+                else
+                    display '-Nested relation: Num 1 is not greater than 
+      -             ' Num2'
                 end-if
            else
                 display '-Num1 is not greater than 100'
