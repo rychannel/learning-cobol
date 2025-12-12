@@ -4,6 +4,17 @@
        environment division.
        input-output section.
        file-control.
+       select CUSTOMER-FILE
+           assign to 'customers.dat'
+           organization is line sequential
+           file status is WS-CUSTOMER-STATUS.
+       select TRANSACTION-FILE
+           assign to 'transactions.dat'
+           organization is line sequential
+           file status is WS-TRANSACTION-STATUS.
+      
+       data division.
+       file section.
        fd CUSTOMER-FILE.
        01 CUSTOMER-RECORD.
           05 CUST-ID               pic 9(6).
@@ -56,7 +67,7 @@
            accept WS-USER-CHOICE.
            evaluate WS-USER-CHOICE
                when '1'
-                   perform ADD-NEW-CUSTOMER
+                    perform ADD-NEW-CUSTOMER
                when '2'
                    perform ADD-NEW-TRANSACTION
                when '3'
@@ -65,7 +76,24 @@
                    perform VIEW-TRANSACTION-HISTORY
                when '5'
                    display "Thank you for using the Banking System. Good
-       -             "bye!"
-                when other
-                     display "Invalid option selected. Please try again."
+      -              "bye!"
+               when other
+                   display "Invalid option selected. Please try again."
               end-evaluate.
+
+       ADD-NEW-CUSTOMER.
+           display "Function to add new customer goes here.".
+           perform DISPLAY-MENU.
+
+       ADD-NEW-TRANSACTION.
+           display "Function to add new transaction goes here.".
+           perform DISPLAY-MENU.
+
+       VIEW-CUSTOMER-ACCOUNTS.
+           display "Function to view customer accounts goes here.".
+           perform DISPLAY-MENU.
+
+       VIEW-TRANSACTION-HISTORY.
+           display "Function to view transaction history goes here.".
+           perform DISPLAY-MENU.
+      
