@@ -172,11 +172,53 @@
               accept WS-TRANS-TYPE
            end-perform.
 
-      *    Open Transaction file or create if it doesn't exist.
+
+      *    Check customer and update balance if possible, then write transaction
+           open i-o CUSTOMER-FILE.
+           move 'N' to WS-EOF-FLAG.
+           move 0 to WS-CUST-BALANCE.
+           perform until WS-EOF-FLAG = 'Y'
+               read CUSTOMER-FILE
+                   at end
+                       move 'Y' to WS-EOF-FLAG
+                       display "Customer not found."
+                   not at end
+                       if CUST-ID = WS-TRANS-CUST-ID
+                           display "Customer ID found."
+                           move CUST-BALANCE to WS-CUST-BALANCE
+                           if WS-TRANS-TYPE = 'D' or WS-TRANS-TYPE = 'd'
+                               add WS-TRANS-AMOUNT to WS-CUST-BALANCE
+                               move WS-CUST-BALANCE to CUST-BALANCE
+                               rewrite CUSTOMER-RECORD
+                               move 'Y' to WS-EOF-FLAG
+                               go to WRITE-TRANSACTION
+                           else
+                               if WS-TRANS-AMOUNT > WS-CUST-BALANCE
+                                   display "Insufficient funds. Transaction cancelled."
+                                   move 'Y' to WS-EOF-FLAG
+                                   go to END-TRANSACTION
+                               else
+                                   subtract WS-TRANS-AMOUNT from WS-CUST-BALANCE
+                                   move WS-CUST-BALANCE to CUST-BALANCE
+                                   rewrite CUSTOMER-RECORD
+                                   move 'Y' to WS-EOF-FLAG
+                                   go to WRITE-TRANSACTION
+                               end-if
+                           end-if
+                       end-if
+               end-read
+           end-perform.
+           close CUSTOMER-FILE.
+
+      END-TRANSACTION.
+           display "Press Enter to return to menu.".
+           accept WS-USER-CHOICE.
+           perform DISPLAY-MENU.
+
+      WRITE-TRANSACTION.
            open extend TRANSACTION-FILE.
            if WS-TRANSACTION-STATUS not = '00'
-               display "Transaction file doesn't exist. Creating new fil
-      -           "e..."
+               display "Transaction file doesn't exist. Creating new file..."
                open output TRANSACTION-FILE
            end-if.
            move WS-TRANS-ID to TRANS-ID.
@@ -185,52 +227,8 @@
            move WS-TRANS-TYPE to TRANS-TYPE.
            write TRANSACTION-RECORD.
            close TRANSACTION-FILE.
- 
-      *    Update Customer Balance
-           open i-o CUSTOMER-FILE.
-           move 'N' to WS-EOF-FLAG.
-           perform until WS-EOF-FLAG = 'Y'
-                  read CUSTOMER-FILE
-                      at end
-                          move 'Y' to WS-EOF-FLAG
-                          display "Customer not found."
-                          display "Deleting transaction..."
-                          perform DELETE-LAST-TRANSACTION
-                      not at end
-                          if CUST-ID = WS-TRANS-CUST-ID
-                              display "Customer ID found."
-                              move CUST-BALANCE to WS-CUST-BALANCE
-                              if WS-TRANS-TYPE = 'D' 
-                                or WS-TRANS-TYPE = 'd'
-                                  add WS-TRANS-AMOUNT to WS-CUST-BALANCE
-                                  move WS-CUST-BALANCE to CUST-BALANCE
-                                  rewrite CUSTOMER-RECORD
-                                  move 'Y' to WS-EOF-FLAG
-                              else
-                                  if WS-TRANS-AMOUNT > WS-CUST-BALANCE
-                                      display "Insufficient funds. Trans
-      -                                  "action cancelled."
-                                      perform DELETE-LAST-TRANSACTION
-                                      move 'Y' to WS-EOF-FLAG
-                                  else
-                                      subtract WS-TRANS-AMOUNT 
-                                        from WS-CUST-BALANCE
-                                      move WS-CUST-BALANCE 
-                                        to CUST-BALANCE
-                                      rewrite CUSTOMER-RECORD
-                                      move 'Y' to WS-EOF-FLAG
-                                  end-if
-                              end-if
-                          end-if
-                  end-read
-           end-perform.
-           close CUSTOMER-FILE.
-
            display "Transaction added successfully.".
-           display " ".
-           display "Press Enter to return to menu.".
-           accept WS-USER-CHOICE.
-           perform DISPLAY-MENU.
+           go to END-TRANSACTION.
 
 
        VIEW-CUSTOMER-ACCOUNTS.
