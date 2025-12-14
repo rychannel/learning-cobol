@@ -87,6 +87,7 @@
                when '5'
                    display "Thank you for using the Banking System. Good
       -              "bye!"
+                   goback
                when other
                    display "Invalid option selected. Please try again."
                    perform DISPLAY-MENU
@@ -173,7 +174,8 @@
            end-perform.
 
 
-      *    Check customer and update balance if possible, then write transaction
+      *    Check customer and update balance if possible, 
+      *    then write transaction
            open i-o CUSTOMER-FILE.
            move 'N' to WS-EOF-FLAG.
            move 0 to WS-CUST-BALANCE.
@@ -194,11 +196,13 @@
                                go to WRITE-TRANSACTION
                            else
                                if WS-TRANS-AMOUNT > WS-CUST-BALANCE
-                                   display "Insufficient funds. Transaction cancelled."
+                                   display "Insufficient funds. Transact
+      -                              "ion cancelled."
                                    move 'Y' to WS-EOF-FLAG
                                    go to END-TRANSACTION
                                else
-                                   subtract WS-TRANS-AMOUNT from WS-CUST-BALANCE
+                                   subtract WS-TRANS-AMOUNT 
+                                     from WS-CUST-BALANCE
                                    move WS-CUST-BALANCE to CUST-BALANCE
                                    rewrite CUSTOMER-RECORD
                                    move 'Y' to WS-EOF-FLAG
@@ -208,17 +212,19 @@
                        end-if
                end-read
            end-perform.
-           close CUSTOMER-FILE.
+           
 
-      END-TRANSACTION.
+       END-TRANSACTION.
+           close CUSTOMER-FILE.
            display "Press Enter to return to menu.".
            accept WS-USER-CHOICE.
            perform DISPLAY-MENU.
 
-      WRITE-TRANSACTION.
+       WRITE-TRANSACTION.
            open extend TRANSACTION-FILE.
            if WS-TRANSACTION-STATUS not = '00'
-               display "Transaction file doesn't exist. Creating new file..."
+               display "Transaction file doesn't exist. Creating new fil
+      -          "e..."
                open output TRANSACTION-FILE
            end-if.
            move WS-TRANS-ID to TRANS-ID.
@@ -242,7 +248,7 @@
                at end
                    display "No customer records found."
                not at end
-                   perform until EOF-REACHED
+                   perform until WS-EOF-FLAG = 'Y'
                        display CUST-ID " " CUST-NAME " " CUST-BALANCE
                        read CUSTOMER-FILE
                            at end
