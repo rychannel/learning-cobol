@@ -2,6 +2,7 @@
 !*/
 !*.* 
 !.gitignore
+!Dockerfile
 *.so
 *.o
 *.out
